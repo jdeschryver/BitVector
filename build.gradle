@@ -2,7 +2,7 @@ group 'be.bucephalus.bitvector'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.1.50'
+    ext.kotlin_version = '1.1.51'
 
     repositories {
         mavenCentral()
@@ -12,13 +12,18 @@ buildscript {
     }
 }
 
+apply plugin: 'java'
 apply plugin: 'kotlin'
+apply plugin: 'application'
+
+mainClassName = 'BitVectorKt'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    ext.kotlin_version = '1.1.51'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 }
 
