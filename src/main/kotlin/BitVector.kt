@@ -64,21 +64,18 @@ class BitVector {
         }
     }
 
-    override fun toString() = arrayListOf<String>().also { list -> words.forEach { s -> list.add("$s") } }.toString()
-
-    fun size() = words.size * WORD_SIZE
+    override fun toString() = mutableListOf<String>().also { s ->
+        (0 until words.size).forEach { wordIndex ->
+            (0..WORD_SIZE).forEach { i -> if(isSet(wordIndex, i)) s.add("${wordIndex*WORD_SIZE+i}") }
+        }
+    }.toString()
 }
+
 
 fun bitsOf(vararg bits: Int) = BitVector().also { vector -> bits.forEach { vector[it] = true } }
 
 fun main(args: Array<String>) {
-    var v1 = bitsOf(0, 4, 8, 5)
-    println(v1[5])
-    val v2 = bitsOf(1, 2, 5)
-    v1 += v2
+    var v1 = bitsOf(0, 4, 8, 5, 58)
 
-    println("${v1[5]}, ${v1[2]}, ${v1[9]}")
-    println(v1 intersect v2)
-    println()
-
+    println(v1)
 }
