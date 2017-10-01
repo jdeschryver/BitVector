@@ -33,10 +33,11 @@ class BitVector {
         return isSet(wordIndex, newIndex)
     }
 
-    operator fun minus(vector: BitVector): BitVector{
-        val newVector = BitVector()
-        vector.words.forEachIndexed { i, e -> if ( i > words.size) return newVector else newVector.words[i] = minus(i, e) }
-        return newVector
+    operator fun minus(vector: BitVector) = BitVector().also { newVector ->
+        vector.words.forEachIndexed { i, e ->
+            if (i > words.size) return@also
+            newVector.words[i] = minus(i, e)
+        }
     }
 
     private fun minus(index: Int, word: Int): Int {
