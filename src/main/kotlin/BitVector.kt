@@ -58,6 +58,14 @@ class BitVector {
         words = expandedWords
     }
 
+    infix fun intersect(vector: BitVector) = BitVector().also { newVector ->
+        vector.words.forEachIndexed { i, e ->
+            newVector.words[i] = words[i] and e
+        }
+    }
+
+    override fun toString() = arrayListOf<String>().also { list -> words.forEach { s -> list.add("$s") } }.toString()
+
     fun size() = words.size * WORD_SIZE
 }
 
@@ -70,5 +78,7 @@ fun main(args: Array<String>) {
     v1 += v2
 
     println("${v1[5]}, ${v1[2]}, ${v1[9]}")
+    println(v1 intersect v2)
+    println()
 
 }
