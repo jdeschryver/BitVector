@@ -26,12 +26,18 @@ class BitVector {
         }
     }
 
-    operator fun get(index: Int) : Boolean {
+    operator fun get(index: Int): Boolean {
         val wordIndex = getWordIndex(index)
         val newIndex = index % WORD_SIZE
         if (wordIndex > words.size) return false
         return isSet(wordIndex, newIndex)
     }
+
+    operator fun plus(vector: BitVector) = BitVector().also { newVector ->
+        vector.words.forEachIndexed { i, e -> newVector.words[i] = plus(i, e) }
+    }
+
+    private fun plus(index: Int, word: Int) = words[index] or word
 
     operator fun minus(vector: BitVector) = BitVector().also { newVector ->
         vector.words.forEachIndexed { i, e ->
@@ -40,32 +46,29 @@ class BitVector {
         }
     }
 
-    private fun minus(index: Int, word: Int): Int {
-        return words[index] and word.inv()
-    }
+    private fun minus(index: Int, word: Int) = words[index] and word.inv()
 
     private fun isSet(wordIndex: Int, index: Int) = words[wordIndex] and index.toMask() != 0
 
-    private fun ensureCapacity(size: Int){
+    private fun ensureCapacity(size: Int) {
         if (size < words.size) return
         val expansionFactor = (size / words.size) * 2
         val expandedWords = IntArray(words.size * expansionFactor)
-        words.forEachIndexed { i,e -> expandedWords[i] = e }
+        words.forEachIndexed { i, e -> expandedWords[i] = e }
         words = expandedWords
     }
 
-    fun size() =  words.size * WORD_SIZE
+    fun size() = words.size * WORD_SIZE
 }
 
-fun bitsOf(vararg bits: Int) = BitVector().also {
-    vector -> bits.forEach{ vector[it] = true } }
+fun bitsOf(vararg bits: Int) = BitVector().also { vector -> bits.forEach { vector[it] = true } }
 
 fun main(args: Array<String>) {
     var v1 = bitsOf(0, 4, 8, 5)
     println(v1[5])
     val v2 = bitsOf(1, 2, 5)
-    v1 -= v2
+    v1 += v2
 
-    println("${v1[5]}, ${v1[2]}, ${v1[0]}")
+    println("${v1[5]}, ${v1[2]}, ${v1[9]}")
 
 }
