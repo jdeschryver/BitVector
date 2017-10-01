@@ -33,6 +33,16 @@ class BitVector {
         return isSet(wordIndex, newIndex)
     }
 
+    operator fun minus(vector: BitVector): BitVector{
+        val newVector = BitVector()
+        vector.words.forEachIndexed { i, e -> if ( i > words.size) return newVector else newVector.words[i] = minus(i, e) }
+        return newVector
+    }
+
+    private fun minus(index: Int, word: Int): Int {
+        return words[index] and word.inv()
+    }
+
     private fun isSet(wordIndex: Int, index: Int) = words[wordIndex] and index.toMask() != 0
 
     private fun ensureCapacity(size: Int){
@@ -42,16 +52,19 @@ class BitVector {
         words.forEachIndexed { i,e -> expandedWords[i] = e }
         words = expandedWords
     }
+
+    fun size() =  words.size * WORD_SIZE
 }
 
-fun bitsOf(vararg bits: Int) : BitVector {
-    return BitVector().apply { bits.forEach{ set(it, true) } }
-}
+fun bitsOf(vararg bits: Int) = BitVector().also {
+    vector -> bits.forEach{ vector[it] = true } }
 
 fun main(args: Array<String>) {
-    val v1 = bitsOf(0, 4, 589)
-    v1[0] = true
-    v1[33] = true
+    var v1 = bitsOf(0, 4, 8, 5)
+    println(v1[5])
+    val v2 = bitsOf(1, 2, 5)
+    v1 -= v2
 
-    println(v1[1])
+    println("${v1[5]}, ${v1[2]}, ${v1[0]}")
+
 }
