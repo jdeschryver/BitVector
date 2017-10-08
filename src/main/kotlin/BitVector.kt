@@ -15,6 +15,12 @@ class BitVector {
 
     private fun Int.toMask() = 1 shl this
 
+    constructor()
+
+    constructor(vector: BitVector) {
+        this.words = vector.words
+    }
+
     operator fun set(index: Int, status: Boolean) {
         val wordIndex = getWordIndex(index)
         val newIndex = index % WORD_SIZE
@@ -26,56 +32,44 @@ class BitVector {
         }
     }
 
-    operator fun get(index: Int): Boolean {
+    operator fun get(index: Int): Int {
         val wordIndex = getWordIndex(index)
         val newIndex = index % WORD_SIZE
-        if (wordIndex > words.size) return false
-        return isSet(wordIndex, newIndex)
+        if (wordIndex > words.size) return 0
+        return if (isSet(wordIndex, newIndex)) 1 else 0
     }
 
-    operator fun plus(vector: BitVector) = BitVector().also { newVector ->
-        vector.words.forEachIndexed { i, e -> newVector.words[i] = plus(i, e) }
-    }
-
-    private fun plus(index: Int, word: Int) = words[index] or word
-
-    operator fun minus(vector: BitVector) = BitVector().also { newVector ->
-        vector.words.forEachIndexed { i, e ->
-            if (i > words.size) return@also
-            newVector.words[i] = minus(i, e)
+    operator fun plus(vector: BitVector) = BitVector(this).also { newVector ->
+        vector.words.forEachIndexed { index, word ->
+            newVector.ensureCapacity(index); newVector.words[index] = newVector.words[index] or word
         }
     }
 
-    private fun minus(index: Int, word: Int) = words[index] and word.inv()
+    operator fun minus(vector: BitVector) = BitVector(this).also { newVector ->
+        vector.words.forEachIndexed { index, word -> newVector.words[index] = words[index] and word.inv() }
+    }
 
     private fun isSet(wordIndex: Int, index: Int) = words[wordIndex] and index.toMask() != 0
 
     private fun ensureCapacity(size: Int) {
         if (size < words.size) return
-        val expansionFactor = (size / words.size) * 2
-        val expandedWords = IntArray(words.size * expansionFactor)
+        var expandedWords = IntArray(size * 2)
         words.forEachIndexed { i, e -> expandedWords[i] = e }
         words = expandedWords
     }
 
     infix fun intersect(vector: BitVector) = BitVector().also { newVector ->
         vector.words.forEachIndexed { i, e ->
-            newVector.words[i] = words[i] and e
+            newVector.ensureCapacity(i); newVector.words[i] = words[i] and e
         }
     }
 
     override fun toString() = mutableListOf<String>().also { s ->
         (0 until words.size).forEach { wordIndex ->
-            (0..WORD_SIZE).forEach { i -> if(isSet(wordIndex, i)) s.add("${wordIndex*WORD_SIZE+i}") }
+            (0..WORD_SIZE).forEach { i -> if (isSet(wordIndex, i)) s.add("${wordIndex * WORD_SIZE + i}") }
         }
     }.toString()
 }
 
 
 fun bitsOf(vararg bits: Int) = BitVector().also { vector -> bits.forEach { vector[it] = true } }
-
-fun main(args: Array<String>) {
-    var v1 = bitsOf(0, 4, 8, 5, 58)
-
-    println(v1)
-}
